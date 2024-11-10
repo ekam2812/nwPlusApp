@@ -26,8 +26,8 @@
             margin-top: 15px;
             padding: 5px;
             background-color: #f9f9f9;
-            max-width: 500px;
-            max-height: 400px;
+            max-width: 500px; /* Maximum width for canvas containers */
+            max-height: 400px; /* Maximum height for canvas containers */
             overflow: hidden;
         }
         canvas {
@@ -40,25 +40,20 @@
             align-items: center;
             margin-top: 20px;
         }
-        #colorDisplayContainer {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            position: relative;
-        }
         #colorDisplay {
-            width: 40px;
-            height: 40px;
-            border-radius: 5px;
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
             border: 2px solid #333;
-        }
-        #colorHex {
-            font-weight: bold;
+            margin-top: 10px;
         }
         .input-group {
             margin: 10px 0;
             text-align: center;
+        }
+        #colorHex {
+            font-weight: bold;
         }
         #blendFactorContainer {
             display: flex;
@@ -81,86 +76,6 @@
         }
         button:hover {
             background-color: #555;
-        }
-
-        /* Custom color picker styles */
-        .color-picker {
-            display: none;
-            position: absolute;
-            top: 60px; /* Position below the color display box */
-            left: 0;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 300px;
-            z-index: 10;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .brightness-saturation {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(to top, black, transparent),
-                        linear-gradient(to right, white, transparent);
-            position: relative;
-            cursor: crosshair;
-            border-radius: 5px;
-        }
-
-        .bs-selector {
-            width: 10px;
-            height: 10px;
-            border: 2px solid white;
-            border-radius: 50%;
-            position: absolute;
-            pointer-events: none;
-            box-shadow: 0 0 0 1px black;
-        }
-
-        .slider {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-        .slider label {
-            font-size: 14px;
-            margin-right: 10px;
-            width: 80px;
-        }
-        .slider input[type="range"] {
-            flex: 1;
-            -webkit-appearance: none;
-            height: 6px;
-            border-radius: 5px;
-            outline: none;
-        }
-        .slider input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            background: lightgrey;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
-        }
-        .slider input[type="range"]::-moz-range-thumb {
-            width: 12px;
-            height: 12px;
-            background: lightgrey;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
-        }
-        .close-btn {
-            align-self: flex-end;
-            cursor: pointer;
-            font-size: 18px;
-            color: #333;
-            padding: 5px;
         }
     </style>
 </head>
@@ -189,28 +104,12 @@
             <button onclick="recolorImage()">Recolor Image</button>
         </div>
 
-        <div id="colorDisplayContainer" onclick="toggleColorPicker(event)">
-            <div id="colorDisplay"></div>
-            <p id="colorHex">Hex: #</p>
-            <!-- Custom color picker that appears when clicking on color display box -->
-            <div class="color-picker">
-                <span class="close-btn" onclick="toggleColorPicker()">×</span>
-                <div class="brightness-saturation" id="brightnessSaturation">
-                    <div class="bs-selector" id="bsSelector"></div>
-                </div>
-                <div class="slider">
-                    <label for="hueSlider">Hue</label>
-                    <input type="range" id="hueSlider" min="0" max="360" value="0">
-                </div>
-                <div class="slider">
-                    <label for="saturationSlider">Saturation</label>
-                    <input type="range" id="saturationSlider" min="0" max="100" value="100">
-                </div>
-                <div class="slider">
-                    <label for="brightnessSlider">Brightness</label>
-                    <input type="range" id="brightnessSlider" min="0" max="100" value="100">
-                </div>
-            </div>
+        <div id="colorDisplay"></div>
+        <p id="colorHex">Hex: #</p>
+
+        <div class="input-group">
+            <label for="selectedColorPicker">Adjust Selected Color:</label>
+            <input type="color" id="selectedColorPicker">
         </div>
 
         <div class="input-group" id="blendFactorContainer">
@@ -221,77 +120,117 @@
     </div>
 
     <script>
-        const colorDisplayContainer = document.getElementById('colorDisplayContainer');
-        const colorPicker = document.querySelector('.color-picker');
-        const brightnessSaturation = document.getElementById('brightnessSaturation');
-        const bsSelector = document.getElementById('bsSelector');
-        const hueSlider = document.getElementById('hueSlider');
-        const saturationSlider = document.getElementById('saturationSlider');
-        const brightnessSlider = document.getElementById('brightnessSlider');
-        let hue = hueSlider.value = 0;
-        let saturation = saturationSlider.value = 100;
-        let brightness = brightnessSlider.value = 100;
+        const imageInput = document.getElementById('imageInput');
+        const canvasin = document.getElementById('InputCanvas');
+        const canvasout = document.getElementById('OutputCanvas');
+        const ctxinput = canvasin.getContext('2d');
+        const ctxoutput = canvasout.getContext('2d');
+        const colorDisplay = document.getElementById('colorDisplay');
+        const colorHex = document.getElementById('colorHex');
+        const selectedColorPicker = document.getElementById('selectedColorPicker');
+        let selectedColor = { r: 100, g: 150, b: 200 }; 
+        let originalImageData;
 
-        function toggleColorPicker(event) {
-            event.stopPropagation();
-            colorPicker.style.display = colorPicker.style.display === 'flex' ? 'none' : 'flex';
-        }
+        imageInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const img = new Image();
+                img.onload = function() {
+                    const maxWidth = 500;
+                    const maxHeight = 400; 
+                    let width = img.width;
+                    let height = img.height;
 
-        function updateColor() {
-            const color = `hsl(${hue}, ${saturation}%, ${brightness}%)`;
-            colorDisplayContainer.querySelector('#colorDisplay').style.backgroundColor = color;
-            brightnessSaturation.style.background = `
-                linear-gradient(to top, black, transparent),
-                linear-gradient(to right, white, hsl(${hue}, 100%, 50%))
-            `;
-            saturationSlider.style.background = `linear-gradient(to right, hsl(${hue}, 0%, 50%), hsl(${hue}, 100%, 50%))`;
-            brightnessSlider.style.background = `linear-gradient(to right, hsl(${hue}, ${saturation}%, 0%), hsl(${hue}, ${saturation}%, 100%))`;
-            const rect = brightnessSaturation.getBoundingClientRect();
-            bsSelector.style.left = `${(saturation / 100) * rect.width - 5}px`;
-            bsSelector.style.top = `${(1 - brightness / 100) * rect.height - 5}px`;
-        }
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
 
-        hueSlider.addEventListener('input', (event) => {
-            hue = event.target.value;
-            updateColor();
-        });
+                    canvasin.width = width;
+                    canvasin.height = height;
+                    canvasout.width = width;
+                    canvasout.height = height;
 
-        brightnessSaturation.addEventListener('mousedown', (event) => {
-            handleBrightnessSaturationInteraction(event);
-            document.addEventListener('mousemove', handleBrightnessSaturationInteraction);
-        });
-
-        document.addEventListener('mouseup', () => {
-            document.removeEventListener('mousemove', handleBrightnessSaturationInteraction);
-        });
-
-        function handleBrightnessSaturationInteraction(event) {
-            const rect = brightnessSaturation.getBoundingClientRect();
-            saturation = Math.min(100, Math.max(0, ((event.clientX - rect.left) / rect.width) * 100));
-            brightness = Math.min(100, Math.max(0, 100 - ((event.clientY - rect.top) / rect.height) * 100));
-            saturationSlider.value = saturation;
-            brightnessSlider.value = brightness;
-            updateColor();
-        }
-
-        saturationSlider.addEventListener('input', (event) => {
-            saturation = event.target.value;
-            updateColor();
-        });
-
-        brightnessSlider.addEventListener('input', (event) => {
-            brightness = event.target.value;
-            updateColor();
-        });
-
-        // Close the color picker when clicking outside
-        document.addEventListener('click', (event) => {
-            if (!colorPicker.contains(event.target) && !colorDisplayContainer.contains(event.target)) {
-                colorPicker.style.display = 'none';
+                    ctxinput.drawImage(img, 0, 0, width, height);
+                    originalImageData = ctxinput.getImageData(0, 0, width, height);
+                };
+                img.src = URL.createObjectURL(file);
             }
         });
 
-        updateColor();
+        canvasin.addEventListener('click', (event) => {
+            const rect = canvasin.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            const pixelData = ctxinput.getImageData(x, y, 1, 1).data;
+            selectedColor = { r: pixelData[0], g: pixelData[1], b: pixelData[2] };
+            const hexColor = rgbToHex(selectedColor);
+            displayColor(hexColor);
+
+            selectedColorPicker.value = hexColor;
+        });
+
+        function displayColor(hexColor) {
+            colorDisplay.style.backgroundColor = hexColor;
+            colorHex.textContent = `Hex: ${hexColor}`;
+        }
+
+        selectedColorPicker.addEventListener('input', (event) => {
+            selectedColor = hexToRgb(event.target.value); 
+            displayColor(event.target.value);
+        });
+
+        function recolorImage() {
+            if (!originalImageData) return;
+
+            const blendFactor = parseFloat(document.getElementById("blendFactor").value);
+            const recoloredImageData = ctxinput.createImageData(originalImageData);
+
+            for (let i = 0; i < originalImageData.data.length; i += 4) {
+                const r = originalImageData.data[i];
+                const g = originalImageData.data[i + 1];
+                const b = originalImageData.data[i + 2];
+                
+                const blended = blendColors({ r, g, b }, selectedColor, blendFactor);
+
+                recoloredImageData.data[i] = blended.r;
+                recoloredImageData.data[i + 1] = blended.g;
+                recoloredImageData.data[i + 2] = blended.b;
+                recoloredImageData.data[i + 3] = originalImageData.data[i + 3];
+            }
+
+            ctxoutput.putImageData(recoloredImageData, 0, 0);
+        }
+
+        function rgbToHex(color) {
+            const toHex = (c) => c.toString(16).padStart(2, '0');
+            return `#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`;
+        }
+
+        function hexToRgb(hex) {
+            const bigint = parseInt(hex.slice(1), 16);
+            return {
+                r: (bigint >> 16) & 255,
+                g: (bigint >> 8) & 255,
+                b: bigint & 255
+            };
+        }
+
+        function blendColors(color1, color2, blendFactor) {
+            return {
+                r: Math.round(color1.r * (1 - blendFactor) + color2.r * blendFactor),
+                g: Math.round(color1.g * (1 - blendFactor) + color2.g * blendFactor),
+                b: Math.round(color1.b * (1 - blendFactor) + color2.b * blendFactor)
+            };
+        }
+
+        document.getElementById("blendFactor").addEventListener("input", function() {
+            document.getElementById("blendFactorValue").textContent = this.value;
+        });
     </script>
 </body>
 </html>
