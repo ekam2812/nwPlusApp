@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Color Blending</title>
+    <link rel="stylesheet" href="styles2.css"> <!-- Moved link tag here -->
+</head>
+<body class="results-page">
+    <div class="top-bar">
+        <div class="brand">colourGlow</div>
+        <a href="homepage.html" class="feature-button">homePage</a>
+    </div>
+    <div class="content-wrapper">
+        <h3>Blended Colors</h3>
+        
+        <div class="color-container">
+            <div>
+                <div id="baseColorBox" class="color-box"></div>
+                <div class="color-label">Base Color</div>
+                <div id="baseColorHex" class="color-hex"></div>
+            </div>
+            <div>
+                <div id="shadowColorBox" class="color-box"></div>
+                <div class="color-label">Shadow Color</div>
+                <div id="shadowColorHex" class="color-hex"></div>
+            </div>
+            <div>
+                <div id="highlightColorBox" class="color-box"></div>
+                <div class="color-label">Highlight Color</div>
+                <div id="highlightColorHex" class="color-hex"></div>
+            </div>
+        </div>
+        <a href="shadefinder.html" class="back-button">‹</a>
+    </div>
+  
+
+    <script>
+        function hexToRgb(hex) {
+            const bigint = parseInt(hex.slice(1), 16);
+            return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+        }
+    
+        function rgbToHex({ r, g, b }) {
+            const toHex = (c) => c.toString(16).padStart(2, '0');
+            return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+        }
+    
+        function blendColors(color1, color2, blendFactor) {
+            return {
+                r: Math.round(color1.r * (1 - blendFactor) + color2.r * blendFactor),
+                g: Math.round(color1.g * (1 - blendFactor) + color2.g * blendFactor),
+                b: Math.round(color1.b * (1 - blendFactor) + color2.b * blendFactor)
+            };
+        }
+    
+        function adjustBrightness(color, adjustment) {
+            return {
+                r: Math.min(255, Math.max(0, color.r + adjustment)),
+                g: Math.min(255, Math.max(0, color.g + adjustment)),
+                b: Math.min(255, Math.max(0, color.b + adjustment))
+            };
+        }
+    
+        const baseColorHex = sessionStorage.getItem('baseColor');
+        const lightColorHex = sessionStorage.getItem('lightColor');
+        const intensity = parseFloat(sessionStorage.getItem('intensity')) / 100;
+    
+        const baseColor = hexToRgb(baseColorHex);
+        const lightColor = hexToRgb(lightColorHex);
+    
+        // Blend light source color onto base color for the new base color
+        const blendedBaseColor = blendColors(baseColor, lightColor, intensity);
+    
+        // Adjust brightness for shadow and highlight colors with a stronger adjustment
+        const shadowColor = adjustBrightness(blendedBaseColor, -50);
+        const highlightColor = adjustBrightness(blendedBaseColor, 50);
+    
+        // Convert to hex for display
+        const blendedBaseHex = rgbToHex(blendedBaseColor);
+        const shadowHex = rgbToHex(shadowColor);
+        const highlightHex = rgbToHex(highlightColor);
+    
+        // Display colors and hex codes in the result boxes
+        document.getElementById('baseColorBox').style.backgroundColor = blendedBaseHex;
+        document.getElementById('baseColorHex').textContent = blendedBaseHex;
+    
+        document.getElementById('shadowColorBox').style.backgroundColor = shadowHex;
+        document.getElementById('shadowColorHex').textContent = shadowHex;
+    
+        document.getElementById('highlightColorBox').style.backgroundColor = highlightHex;
+        document.getElementById('highlightColorHex').textContent = highlightHex;
+    </script>
+</body>
+</html>

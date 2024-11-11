@@ -1,0 +1,111 @@
+body {
+    font-family: "Italiana", serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #1a1a1a;
+}
+
+
+h3 {
+    font-size: 1.89em;
+    color: #f0eae0;
+    text-align: center;
+    margin-top: 0px; /* Adjust this value for better spacing */
+    margin-bottom: 20px; /* Additional space between title and colors */
+}
+
+.top-bar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: #1a1a1a;
+    border-bottom: 1px solid #f0eae0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.top-bar .brand {
+    font-family: 'Italiana', serif;
+    font-weight: bold;
+    font-size: 3em;
+    color: #f0eae0;
+    margin: auto; /* Center the brand */
+}
+
+
+.feature-button {
+    position: absolute;
+    right: 50px; /* Position the button on the right */
+    color: #f0eae0;
+    text-decoration: none;
+    font-size: 1.2em;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.feature-button:hover {
+    background-color: #333;
+}
+
+.color-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 35px; /* Adjusted for the fixed top-bar */
+}
+
+.color-box {
+    width: 200px;
+    height: 200px;
+    border-radius: 5px;
+    border: 2px solid #f0eae0;
+}
+
+.color-label {
+    text-align: center;
+    margin-top: 10px;
+    color: #f0eae0;
+}
+
+.color-hex {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 14px;
+    color: #f0eae0;
+    font-weight: bold;
+}
+
+.back-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: #333;
+    color: #f0eae0;
+    border: none;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5em;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    text-decoration: none; /* Removes underline */
+}
+
+.back-button:hover {
+    background-color: #f0eae0;
+    color: #1a1a1a;
+    transform: scale(1.1); /* Adds a slight zoom effect on hover */
+}

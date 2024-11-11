@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>colourGlow</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="brand">colourGlow</div>
+        <a href="homepage.html" class="feature-button">homePage</a>
+    </div>
+
+    <div class="color-pickers-container">
+        <div class="picker-group">
+            <h3 class="picker-title">Base Color</h3>
+            <div class="color-picker" id="colorPicker1">
+                <div class="brightness-saturation" id="brightnessSaturation1">
+                    <div class="bs-selector" id="bsSelector1"></div>
+                </div>
+                <div class="slider">
+                    <label for="hueSlider1">Hue</label>
+                    <input type="range" id="hueSlider1" min="0" max="360" value="0">
+                </div>
+                <div class="slider">
+                    <label for="saturationSlider1">Saturation</label>
+                    <input type="range" id="saturationSlider1" min="0" max="100" value="100">
+                </div>
+                <div class="slider">
+                    <label for="brightnessSlider1">Brightness</label>
+                    <input type="range" id="brightnessSlider1" min="0" max="100" value="100">
+                </div>
+                <div class="color-preview" id="colorPreview1"></div>
+            </div>
+        </div>
+
+        <div class="picker-group">
+            <h3 class="picker-title">Light Source Color</h3>
+            <div class="color-picker" id="colorPicker2">
+                <div class="brightness-saturation" id="brightnessSaturation2">
+                    <div class="bs-selector" id="bsSelector2"></div>
+                </div>
+                <div class="slider">
+                    <label for="hueSlider2">Hue</label>
+                    <input type="range" id="hueSlider2" min="0" max="360" value="0">
+                </div>
+                <div class="slider">
+                    <label for="saturationSlider2">Saturation</label>
+                    <input type="range" id="saturationSlider2" min="0" max="100" value="100">
+                </div>
+                <div class="slider">
+                    <label for="brightnessSlider2">Brightness</label>
+                    <input type="range" id="brightnessSlider2" min="0" max="100" value="100">
+                </div>
+                <div class="color-preview" id="colorPreview2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="intensity-slider-container">
+        <label for="intensitySlider" class="intensity-label">Intensity</label>
+        <input type="range" id="intensitySlider" min="0" max="100" value="50">
+    </div>
+
+    <a href="results.html" class="next-button">›</a>
+
+    <script src="script.js"></script>
+</body>
+</html>

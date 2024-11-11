@@ -1,76 +1,77 @@
-const brightnessSaturation = document.getElementById('brightnessSaturation');
-const bsSelector = document.getElementById('bsSelector');
-const colorPreview = document.getElementById('colorPreview');
-const hueSlider = document.getElementById('hueSlider');
-const saturationSlider = document.getElementById('saturationSlider');
-const brightnessSlider = document.getElementById('brightnessSlider');
+function setupColorPicker(pickerId, hueId, saturationId, brightnessId, previewId, bsSelectorId) {
+    const brightnessSaturation = document.getElementById(pickerId);
+    const bsSelector = document.getElementById(bsSelectorId);
+    const colorPreview = document.getElementById(previewId);
+    const hueSlider = document.getElementById(hueId);
+    const saturationSlider = document.getElementById(saturationId);
+    const brightnessSlider = document.getElementById(brightnessId);
 
-// Set initial values for hue, saturation, and brightness
-let hue = hueSlider.value = 0;          // Set hue to default 0 (red)
-let saturation = saturationSlider.value = 100; // Set saturation to full
-let brightness = brightnessSlider.value = 100; // Set brightness to full
+    let hue = 0, saturation = 100, brightness = 100;
 
-// Update the color preview, slider backgrounds, brightness-saturation square, and picker position
-function updateColor() {
-    const color = `hsl(${hue}, ${saturation}%, ${brightness}%)`;
-    colorPreview.style.backgroundColor = color;
+    function updateColor() {
+        const color = `hsl(${hue}, ${saturation}%, ${brightness}%)`;
+        colorPreview.style.backgroundColor = color;
+        brightnessSaturation.style.background = `
+            linear-gradient(to top, black, transparent),
+            linear-gradient(to right, white, hsl(${hue}, 100%, 50%))
+        `;
+        saturationSlider.style.background = `linear-gradient(to right, hsl(${hue}, 0%, 50%), hsl(${hue}, 100%, 50%))`;
+        brightnessSlider.style.background = `linear-gradient(to right, hsl(${hue}, ${saturation}%, 0%), hsl(${hue}, ${saturation}%, 100%))`;
+        const rect = brightnessSaturation.getBoundingClientRect();
+        bsSelector.style.left = `${(saturation / 100) * rect.width - 5}px`;
+        bsSelector.style.top = `${(1 - brightness / 100) * rect.height - 5}px`;
+    }
 
-    // Update the brightness-saturation square background to reflect the current hue
-    brightnessSaturation.style.background = `
-        linear-gradient(to top, black, transparent),
-        linear-gradient(to right, white, hsl(${hue}, 100%, 50%))
-    `;
+    hueSlider.addEventListener('input', (event) => {
+        hue = event.target.value;
+        updateColor();
+    });
 
-    // Update saturation slider background to match the initial or current hue
-    saturationSlider.style.background = `linear-gradient(to right, hsl(${hue}, 0%, 50%), hsl(${hue}, 100%, 50%))`;
+    brightnessSaturation.addEventListener('mousedown', (event) => {
+        handleBrightnessSaturationInteraction(event);
+        document.addEventListener('mousemove', handleBrightnessSaturationInteraction);
+    });
 
-    // Update brightness slider background to match the hue and saturation
-    brightnessSlider.style.background = `linear-gradient(to right, hsl(${hue}, ${saturation}%, 0%), hsl(${hue}, ${saturation}%, 100%))`;
+    document.addEventListener('mouseup', () => {
+        document.removeEventListener('mousemove', handleBrightnessSaturationInteraction);
+    });
 
-    // Update the position of the picker in the brightness-saturation square based on saturation and brightness values
-    const rect = brightnessSaturation.getBoundingClientRect();
-    bsSelector.style.left = `${(saturation / 100) * rect.width - 5}px`;
-    bsSelector.style.top = `${(1 - brightness / 100) * rect.height - 5}px`;
-}
+    function handleBrightnessSaturationInteraction(event) {
+        const rect = brightnessSaturation.getBoundingClientRect();
+        saturation = Math.min(100, Math.max(0, ((event.clientX - rect.left) / rect.width) * 100));
+        brightness = Math.min(100, Math.max(0, 100 - ((event.clientY - rect.top) / rect.height) * 100));
+        saturationSlider.value = saturation;
+        brightnessSlider.value = brightness;
+        updateColor();
+    }
 
-// Handle hue slider interaction
-hueSlider.addEventListener('input', (event) => {
-    hue = event.target.value;
-    updateColor();
-});
+    saturationSlider.addEventListener('input', (event) => {
+        saturation = event.target.value;
+        updateColor();
+    });
 
-// Handle brightness-saturation square interaction
-brightnessSaturation.addEventListener('mousedown', (event) => {
-    handleBrightnessSaturationInteraction(event);
-    document.addEventListener('mousemove', handleBrightnessSaturationInteraction);
-});
+    brightnessSlider.addEventListener('input', (event) => {
+        brightness = event.target.value;
+        updateColor();
+    });
 
-// Remove mousemove event on mouseup
-document.addEventListener('mouseup', () => {
-    document.removeEventListener('mousemove', handleBrightnessSaturationInteraction);
-});
-
-// Handle interaction with the brightness-saturation square
-function handleBrightnessSaturationInteraction(event) {
-    const rect = brightnessSaturation.getBoundingClientRect();
-    saturation = Math.min(100, Math.max(0, ((event.clientX - rect.left) / rect.width) * 100));
-    brightness = Math.min(100, Math.max(0, 100 - ((event.clientY - rect.top) / rect.height) * 100));
-
-    saturationSlider.value = saturation;
-    brightnessSlider.value = brightness;
     updateColor();
 }
 
-// Event listeners for the saturation and brightness sliders
-saturationSlider.addEventListener('input', (event) => {
-    saturation = event.target.value;
-    updateColor();
-});
+setupColorPicker('brightnessSaturation1', 'hueSlider1', 'saturationSlider1', 'brightnessSlider1', 'colorPreview1', 'bsSelector1');
+setupColorPicker('brightnessSaturation2', 'hueSlider2', 'saturationSlider2', 'brightnessSlider2', 'colorPreview2', 'bsSelector2');
 
-brightnessSlider.addEventListener('input', (event) => {
-    brightness = event.target.value;
-    updateColor();
-});
+document.querySelector('.next-button').addEventListener('click', () => {
+    const baseColor = window.getComputedStyle(document.getElementById('colorPreview1')).backgroundColor;
+    const lightColor = window.getComputedStyle(document.getElementById('colorPreview2')).backgroundColor;
+    const intensity = document.getElementById('intensitySlider').value;
 
-// Initialize color with default values on page load
-updateColor();
+    const rgbToHex = (rgb) => {
+        const [r, g, b] = rgb.match(/\d+/g).map(Number);
+        return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
+    };
+
+    sessionStorage.setItem('baseColor', rgbToHex(baseColor));
+    sessionStorage.setItem('lightColor', rgbToHex(lightColor));
+    sessionStorage.setItem('intensity', intensity);
+});
